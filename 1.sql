@@ -27,19 +27,19 @@ delete from userbehavior where id = 100001 or id=100002;
 
 
 ##3) convert timestamp 
-### add a new column named new_date to take the corrected time value
+### add a new column named new_dates to take the corrected time value
 alter table userbehavior add new_dates varchar(255);
 update userbehavior set new_dates = from_unixtime(time_stamp, '%Y-%m-%d');
 select* from userbehavior;
 alter table userbehavior drop column new_date;
 alter table userbehavior drop column dates;
 
-### add a new column named hours
+### add a new column named hour
 alter table userbehavior add hour varchar(255);
 update userbehavior set hour = from_unixtime(time_stamp, '%H');
 select* from userbehavior;
 	
-### add a new column named datetime
+### add a new column named datetimes
 alter table userbehavior add datetimes varchar(255);
 update userbehavior set datetimes = from_unixtime(time_stamp, '%Y-%m-%d %H:%i:%s');
 select* from userbehavior;
