@@ -171,7 +171,7 @@ inner join I
 on A.item_id= I.item_id;
 	
 
-### In total, 58744 products were recommended,but only 3032 were marked as favor or put into cart by customers. That meands the recommendation didn't work well. 
+### In total, 58744 products were recommended,but only 3032 were marked as favor or put into cart by customers. That means the recommendation didn't work well. 
 /*summary：Most products are tail items which don't attract many customers.
 Thus, recommend product department to update product information on the platform,
 and take actions to get rid of low converstion rate products.*/
