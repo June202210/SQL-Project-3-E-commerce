@@ -3,7 +3,8 @@
 SELECT * FROM sys.userbehavior;
 
 # 1. data cleaning
-##1) check if there is any null value(value count is consistant, no null value)
+
+1) check if there is any null value(value count is consistant, no null value)
 SELECT 
     COUNT(user_id),
     COUNT(item_id),
@@ -12,9 +13,12 @@ SELECT
     COUNT(time_stamp)
 FROM
     userbehavior;
-##2)check if there is duplicate
+    
+2)check if there is duplicate
+
 ###create a new column named ID
 alter table userbehavior add id int primary key auto_increment;
+
 ### find rows with duplicates（2 duplicate rows found）
 drop table if exists temp;
 create temporary table temp
@@ -22,11 +26,12 @@ select id, user_id,item_id, time_stamp,row_number()over(partition by user_id, it
 from userbehavior;
 	
 select *from temp where duplicates>1;
+
 ### delete duplicates 
 delete from userbehavior where id = 100001 or id=100002;
 
 
-##3) convert timestamp 
+3) convert timestamp 
 ### add a new column named new_dates to take the corrected time value
 alter table userbehavior add new_dates varchar(255);
 update userbehavior set new_dates = from_unixtime(time_stamp, '%Y-%m-%d');
@@ -43,15 +48,17 @@ select* from userbehavior;
 alter table userbehavior add datetimes varchar(255);
 update userbehavior set datetimes = from_unixtime(time_stamp, '%Y-%m-%d %H:%i:%s');
 select* from userbehavior;
-##4) check if all records are within time range (11/25/2021-12/03/2021)
+
+4) check if all records are within time range (11/25/2021-12/03/2021)
 select * from userbehavior where new_dates<'2021-11-25' or new_dates>'2021-12-03';
 
 ###delete records that are not needed
 delete from userbehavior where new_dates<'2021-11-25' or new_dates>'2021-12-03';
 
+
 # 2. data exploration with AIPL model(A- awareness, I-interest, P- purchase/buy, L=loyalty)
 
-##1) calculate AIP
+1) calculate AIP
 ###create view behavior
 drop view if exists behavior;
 create view behavior as
@@ -70,7 +77,7 @@ select sum(pv)as 'A',
 sum(favor)+sum(cart)as'I', sum(buy)as'P'
 from behavior;
 
-##2) calculate L
+2) calculate L
 drop table if exists consume;
 create temporary table consume 
 select user_id,datetimes,buy,dense_rank()over(partition by user_id order by datetimes)as 'n_consume'
@@ -85,7 +92,7 @@ A(awareness) to I(interest) converstion rate is very low. */
 # 3. data analysis
 /*From user behavior and products dimensions, find the reason behind the low conversion rate, and provide advice accordingly.*/
 
-##1)From user behavior dimension, find converstion rate at different hour 
+1)From user behavior dimension, find converstion rate at different hour 
 create temporary table A_view
 select hour, count(*)as A_view_behavior
 from behavior
@@ -119,7 +126,7 @@ on A_view.hour=I_interest.hour;
 Among these hours, 10 o'clock has the best performance, converstion rate is 10.1%. 
 Recommend to use 10 o'clock as the primary advertising time to attract more customers.*/
 
-##2) From product dimension, analyze data to see if product recommendation is useful.
+2) From product dimension, analyze data to see if product recommendation is useful.
 ### find how many items that customers viewed and were interested
 
 #### items viewed
@@ -134,9 +141,9 @@ where behavior_type in('favor','cart');
 
 ####A_item value 58744, I_item_value 5022. Client viewed a lot of items(58744) but were only interested in a few of them(5022).
 
-##3) hypothesis testing to find the reason behind this
+3) hypothesis testing to find the reason behind this
 /* Hypothesis:Clients were not interested in most products that the platform recommended.
-If the products that client were interested consist only a small portion of the products that client were interested in, 
+If the products that client viewed consist only a small portion of the products that client marked as favourite or put into cart, 
 it means hypothesis is true.*/
 
 drop view if exists A;
@@ -164,7 +171,7 @@ inner join I
 on A.item_id= I.item_id;
 	
 
-### 58744 products were recommended,but only 3032 were marked as favor or put into cart by customers. That meands the recommendation didn't work well. 
+### In total, 58744 products were recommended,but only 3032 were marked as favor or put into cart by customers. That meands the recommendation didn't work well. 
 /*summary：Most products are tail items which don't attract many customers.
 Thus, recommend product department to update product information on the platform,
 and take actions to get rid of low converstion rate products.*/
