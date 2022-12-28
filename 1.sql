@@ -2,7 +2,7 @@
 
 SELECT * FROM sys.userbehavior;
 
-# 1. data cleaning
+1. data cleaning
 
 1) check if there is any null value(value count is consistant, no null value)
 SELECT 
@@ -16,10 +16,11 @@ FROM
     
 2)check if there is duplicate
 
-###create a new column named ID
+-- create a new column named ID
 alter table userbehavior add id int primary key auto_increment;
 
-### find rows with duplicates（2 duplicate rows found）
+-- find rows with duplicates（2 duplicate rows found）
+
 drop table if exists temp;
 create temporary table temp
 select id, user_id,item_id, time_stamp,row_number()over(partition by user_id, item_id,time_stamp)as duplicates
@@ -27,24 +28,27 @@ from userbehavior;
 	
 select *from temp where duplicates>1;
 
-### delete duplicates 
+-- delete duplicates 
 delete from userbehavior where id = 100001 or id=100002;
 
 
 3) convert timestamp 
-### add a new column named new_dates to take the corrected time value
+-- add a new column named new_dates to take the corrected time value
+
 alter table userbehavior add new_dates varchar(255);
 update userbehavior set new_dates = from_unixtime(time_stamp, '%Y-%m-%d');
 select* from userbehavior;
 alter table userbehavior drop column new_date;
 alter table userbehavior drop column dates;
 
-### add a new column named hour
+-- add a new column named hour
+
 alter table userbehavior add hour varchar(255);
 update userbehavior set hour = from_unixtime(time_stamp, '%H');
 select* from userbehavior;
 	
-### add a new column named datetimes
+-- add a new column named datetimes
+
 alter table userbehavior add datetimes varchar(255);
 update userbehavior set datetimes = from_unixtime(time_stamp, '%Y-%m-%d %H:%i:%s');
 select* from userbehavior;
@@ -52,14 +56,14 @@ select* from userbehavior;
 4) check if all records are within time range (11/25/2021-12/03/2021)
 select * from userbehavior where new_dates<'2021-11-25' or new_dates>'2021-12-03';
 
-###delete records that are not needed
+-- delete records that are not needed
 delete from userbehavior where new_dates<'2021-11-25' or new_dates>'2021-12-03';
 
 
 # 2. data exploration with AIPL model(A- awareness, I-interest, P- purchase/buy, L=loyalty)
 
 1) calculate AIP
-###create view behavior
+-- create view behavior
 drop view if exists behavior;
 create view behavior as
 select user_id,datetimes,new_dates, hour,
@@ -72,7 +76,7 @@ group by user_id,datetimes,new_dates, hour;
 
 select * from behavior;
 
-###get AIP
+-- get AIP
 select sum(pv)as 'A',
 sum(favor)+sum(cart)as'I', sum(buy)as'P'
 from behavior;
@@ -89,7 +93,7 @@ Rate through each funnel is 9%, 23%, 63% respectively.
 A(awareness) to I(interest) converstion rate is very low. */
 
 
-# 3. data analysis
+3. data analysis
 /*From user behavior and products dimensions, find the reason behind the low conversion rate, and provide advice accordingly.*/
 
 1)From user behavior dimension, find converstion rate at different hour 
@@ -114,7 +118,7 @@ order by A_view.hour;
 
 
 
-###use average A to I conversion rate as measurement standard
+-- use average A to I conversion rate as measurement standard
 
 select round(avg(A_view_behavior)),round(avg(I_interest_behavior)),
 concat(round(avg(I_interest_behavior/A_view_behavior),3)*100,'%')as avg_A_to_I_rate
@@ -127,19 +131,19 @@ Among these hours, 10 o'clock has the best performance, converstion rate is 10.1
 Recommend to use 10 o'clock as the primary advertising time to attract more customers.*/
 
 2) From product dimension, analyze data to see if product recommendation is useful.
-### find how many items that customers viewed and were interested
+-- find how many items that customers viewed and were interested
 
-#### items viewed
+-- items viewed
 select count(distinct item_id)as A_item
 from userbehavior
 where behavior_type='pv';
 
-#### interested items
+-- interested items
 select count(distinct item_id)as I_item
 from userbehavior
 where behavior_type in('favor','cart');
 
-####A_item value 58744, I_item_value 5022. Client viewed a lot of items(58744) but were only interested in a few of them(5022).
+-- A_item value 58744, I_item_value 5022. Client viewed a lot of items(58744) but were only interested in a few of them(5022). 
 
 3) hypothesis testing to find the reason behind this
 /* Hypothesis:Clients were not interested in most products that the platform recommended.
@@ -171,7 +175,7 @@ inner join I
 on A.item_id= I.item_id;
 	
 
-### In total, 58744 products were recommended,but only 3032 were marked as favor or put into cart by customers. That means the recommendation didn't work well. 
+-- In total, 58744 products were recommended,but only 3032 were marked as favor or put into cart by customers. That means the recommendation didn't work well. 
 /*summary：Most products are tail items which don't attract many customers.
 Thus, recommend product department to update product information on the platform,
 and take actions to get rid of low converstion rate products.*/
