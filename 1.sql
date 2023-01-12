@@ -180,7 +180,7 @@ on A.item_id= I.item_id;
 Thus, recommend product department to update product information on the platform,
 and take actions to get rid of low converstion rate products.*/
 
-/* Data visualiztion for above analysis is available as below.
+/* Data visualiztion for above analysis is available on below website.
 https://public.tableau.com/views/TableuaProject-E-commerce/Dashboard?:language=zh-CN&:display_count=n&:origin=viz_share_link 
 */
 
