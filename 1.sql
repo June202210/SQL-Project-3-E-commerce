@@ -1,4 +1,5 @@
-/*objective: analysing data from 11/25/2021 to 12/03/2021 to give business insights*/
+/*objective: we will use funnel analysis strategy and hypothesis testing to analyze data from 11/25/2021 to 12/03/2021
+to give business insights*/
 
 SELECT * FROM sys.userbehavior;
 
@@ -179,6 +180,10 @@ on A.item_id= I.item_id;
 /*summary：Most products are tail items which don't attract many customers.
 Thus, recommend product department to update product information on the platform,
 and take actions to get rid of low converstion rate products.*/
+
+/* Data visualiztion for above analysis is available as below.
+https://public.tableau.com/views/TableuaProject-E-commerce/Dashboard?:language=zh-CN&:display_count=n&:origin=viz_share_link 
+*/
 
 
 
