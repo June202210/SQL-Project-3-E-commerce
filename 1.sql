@@ -1,4 +1,4 @@
-/*objective: we will use funnel analysis strategy and hypothesis testing to analyze data from 11/25/2021 to 12/03/2021
+/*objective: we will use funnel analysis strategy and hypothesis testing to analyze user behavior on Tmall from 11/25/2021 to 12/03/2021,
 to give business insights*/
 
 SELECT * FROM sys.userbehavior;
